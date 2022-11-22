@@ -36,7 +36,7 @@ class LogoutView(APIView):
 
 
 class RegisterView(APIView):
-    def get(request):
+    def get(self, request):
         return render(request, 'authentication/RegisterView.html', {})
 
 
