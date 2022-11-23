@@ -8,8 +8,10 @@ class Census(models.Model):
     voter_id= models.ManyToManyField(User)
 
     class Meta:
+
         unique_together = (('name'),('voting_id'),)
         
     def __str__(self):
         return self.name
+
 
