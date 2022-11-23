@@ -9,8 +9,8 @@ class CensusResource(resources.ModelResource):
         model = Census
 
 class CensusAdmin(ImportExportModelAdmin,admin.ModelAdmin):
-    list_display = ('voting_id', 'voter_id')
-    list_filter = ('voting_id', )
+    list_display = ('name', 'voting_id')
+    list_filter = ('name', 'voting_id')
     resource_class = CensusResource
 
     search_fields = ('voter_id', )
