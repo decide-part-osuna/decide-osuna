@@ -10,9 +10,6 @@ class Census(models.Model):
     class Meta:
         unique_together = (('name'),('voting_id'),)
         
-    def __unicode__(self):
-        users = []
-        for voter in self.voter_id.all():
-            users.append(voter.username)
-        return '{}:[{},{}]'.format(self.name,self.voting_id.name,users)
+    def __str__(self):
+        return self.name
 
