@@ -11,8 +11,7 @@ from rest_framework.status import (
 )
 
 from base.perms import UserIsStaff
-from .models import Census, ExportCensus
-
+from .models import Census
 
 class CensusCreate(generics.ListCreateAPIView):
     permission_classes = (UserIsStaff,)
