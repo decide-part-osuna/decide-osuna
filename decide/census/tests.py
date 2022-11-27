@@ -3,6 +3,16 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from rest_framework.test import APIClient
 
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+
+from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
+
+from base.tests import BaseTestCase
+
 
 from .models import Census
 from voting.models import Voting, Question, QuestionOption
@@ -77,6 +87,45 @@ class CensusTestCase(BaseTestCase):
         response = self.client.delete('/census/{}/'.format(20), data, format='json')
         self.assertEqual(response.status_code, 204)
         self.assertEqual(0, Census.objects.count())
+            
+class AdminTestCase(StaticLiveServerTestCase):
+
+
+    def setUp(self):
+        #Load base test functionality for decide
+        self.base = BaseTestCase()
+        self.base.setUp()
+
+        options = webdriver.ChromeOptions()
+        options.headless = False
+        self.driver = webdriver.Chrome(options=options)
+
+        super().setUp()            
+            
+    def tearDown(self):           
+        super().tearDown()
+        self.driver.quit()
+
+        self.base.tearDown()
+        
+    def test_simpleVisualizer(self):        
+        q = Question(desc='test question')
+        q.save()
+        v = Voting(name='test voting', question=q)
+        v.save()
+        response =self.driver.get(f'{self.live_server_url}/visualizer/{v.pk}/')
+        vState= self.driver.find_element(By.TAG_NAME,"h2").text
+        self.assertTrue(vState, "Votación no comenzada")
+    
+    def test_simpleCorrectLogin(self):                    
+        self.driver.get(f'{self.live_server_url}/admin/')
+        self.driver.find_element(By.ID,'id_username').send_keys("admin")
+        self.driver.find_element(By.ID,'id_password').send_keys("qwerty",Keys.ENTER)
+        
+        print(self.driver.current_url)
+        #In case of a correct loging, a element with id 'user-tools' is shown in the upper right part
+        self.assertTrue(len(self.driver.find_elements(By.ID,'user-tools'))==1)
+
 '''
     def test_add_new_voters_conflict(self):
         voting = Voting.objects.get(id=20)
@@ -109,3 +158,4 @@ class CensusTestCase(BaseTestCase):
         self.assertEqual(len(data.get('voters')), Census.objects.count() - 1)
 
         '''
+        
