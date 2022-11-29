@@ -10,6 +10,8 @@ from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.forms import UserCreationForm
+from django.shortcuts import render
 
 from .serializers import UserSerializer
 
@@ -34,6 +36,10 @@ class LogoutView(APIView):
 
 
 class RegisterView(APIView):
+    def get(self, request):
+        form = UserCreationForm()
+        return render(request, 'authentication/RegisterView.html', {'form':form})
+
     def post(self, request):
         key = request.data.get('token', '')
         tk = get_object_or_404(Token, key=key)
