@@ -34,6 +34,10 @@ class LogoutView(APIView):
 
 
 class RegisterView(APIView):
+    def get(self, request):
+        form = UserCreationForm()
+        return render(request, 'authentication/RegisterView.html', {'form':form})
+
     def post(self, request):
         key = request.data.get('token', '')
         tk = get_object_or_404(Token, key=key)
