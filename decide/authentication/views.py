@@ -38,7 +38,7 @@ class LogoutView(APIView):
 class RegisterView(APIView):
     def get(self, request):
         form = UserCreationForm()
-        return render(request, 'authentication/RegisterView.html', {'form':form})
+        return render(request, 'authentication/RegisterView.html', {'form':form}
 
     def post(self, request):
         key = request.data.get('token', '')
