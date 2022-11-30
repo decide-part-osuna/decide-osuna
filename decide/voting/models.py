@@ -37,7 +37,7 @@ class QuestionOption(models.Model):
         return super().save()
 
     def __str__(self):
-        return '{} ({})'.format(self.option, self.number, self.boolean)
+        return '{} ({})'.format(self.option, self.number)
 
 
 class Voting(models.Model):

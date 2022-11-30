@@ -7,7 +7,7 @@ from base.serializers import KeySerializer, AuthSerializer
 class QuestionOptionSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = QuestionOption
-        fields = ('number', 'option', 'boolean')
+        fields = ('number', 'option')
 
 
 class QuestionSerializer(serializers.HyperlinkedModelSerializer):
