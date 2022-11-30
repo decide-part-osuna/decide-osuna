@@ -23,8 +23,11 @@ class QuestionOption(models.Model):
     def save(self):
         if not self.number:
             self.number = self.question.options.count() + 2
-        if not self.option and self.boolean:
-            self.option = str(self.boolean)
+        if self.boolean == True:
+            self.option = 'Sí'
+            self.number = self.question.options.count() + 2
+        if self.boolean == False:
+            self.option = 'No'
             self.number = self.question.options.count() + 2
         return super().save()
 
