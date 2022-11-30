@@ -8,10 +8,21 @@ from base.models import Auth, Key
 
 
 class Question(models.Model):
+    
     desc = models.TextField()
-
+    questionYesNO = models.BooleanField(default=False, help_text="¿Quieres una pregunta de sí o no?")
+    
     def __str__(self):
         return self.desc
+    
+@receiver(post_save, sender=Question)
+def questionYesNO(sender, instance, **kwargs):
+    options = instance.options.all()
+    if instance.questionYesNO==True and options.count()==0:
+        op1 = QuestionOption(question=instance, number=1, option="Sí")
+        op1.save()
+        op2 = QuestionOption(question=instance, number=2, option="No")
+        op2.save()
 
 
 class QuestionOption(models.Model):
