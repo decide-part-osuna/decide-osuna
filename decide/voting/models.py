@@ -17,15 +17,19 @@ class Question(models.Model):
 class QuestionOption(models.Model):
     question = models.ForeignKey(Question, related_name='options', on_delete=models.CASCADE)
     number = models.PositiveIntegerField(blank=True, null=True)
-    option = models.TextField()
+    option = models.TextField(blank=True)
+    boolean = models.NullBooleanField(("Sí o No"))
 
     def save(self):
         if not self.number:
             self.number = self.question.options.count() + 2
+        if not self.option and self.boolean:
+            self.option = str(self.boolean)
+            self.number = self.question.options.count() + 2
         return super().save()
 
     def __str__(self):
-        return '{} ({})'.format(self.option, self.number)
+        return '{} ({})'.format(self.option, self.number, self.boolean)
 
 
 class Voting(models.Model):
