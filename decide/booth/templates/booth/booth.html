@@ -50,20 +50,30 @@
             </b-form>
 
             <!-- Voting -->
-            <div v-if="!signup">
-                <h2>[[ voting.question.desc ]]</h2>
-                <b-form-group v-for="opt in voting.question.options" :key="opt.number">
-                    <b-form-radio v-model="selected"
-                                  :id="'q' + opt.number"
-                                  name="question"
-                                  :value="opt.number">
-                        [[ opt.option ]]
-                    </b-form-radio>
-                </b-form-group>
+            <b-form  v-if="!signup">    
+                <b-form v-for="q in voting.question" :key="q.desc">  
+                    <div>
+                        <div><h2>[[ q.desc]]</h2>
+                        </div>
+                        <div>
+                            <b-form-group v-for="opt in q.options" :key="opt.number">
+                                <b-form-radio v-model="selected"
+                                :id="'q' + opt.number"
+                                name="question"
+                                :value="opt.number">
+                                    [[ opt.option ]]
+                                </b-form-radio>       
+                            </b-form-group>
+                        </div>
+                    </div>  
+                    
+                </b-form>
                 <b-button type="button" variant="primary" v-on:click="decideSend">
                     {% trans "Vote" %}
                 </b-button>
-            </div>
+                    
+                
+            </b-form >
         </div>
     </div>
 {% endblock %}
@@ -93,7 +103,7 @@
             data: {
                 keybits: {{ KEYBITS }},
                 voting: voting,
-                selected: "",
+                selected: [],
                 signup: true,
                 alertShow: false,
                 alertMsg: "",
@@ -187,6 +197,7 @@
                 decideSend(evt) {
                     evt.preventDefault();
                     var v = this.decideEncrypt();
+                    
                     var data = {
                         vote: {a: v.alpha.toString(), b: v.beta.toString()},
                         voting: this.voting.id,
