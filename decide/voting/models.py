@@ -8,20 +8,32 @@ from base.models import Auth, Key
 
 
 class Question(models.Model):
-    desc = models.TextField()
-
+    
+    desc = models.TextField(default=" ")
+    questionYesNO = models.BooleanField(default=False, help_text="¿Quieres una pregunta de sí o no?")
+    
     def __str__(self):
         return self.desc
+    
+@receiver(post_save, sender=Question)
+def questionYesNO(sender, instance, **kwargs):
+    options = instance.options.all()
+    if instance.questionYesNO==True and options.count()==0:
+        op1 = QuestionOption(question=instance, number=1, option="Sí")
+        op1.save()
+        op2 = QuestionOption(question=instance, number=2, option="No")
+        op2.save()
 
 
 class QuestionOption(models.Model):
     question = models.ForeignKey(Question, related_name='options', on_delete=models.CASCADE)
     number = models.PositiveIntegerField(blank=True, null=True)
-    option = models.TextField()
+    option = models.TextField(blank=True)
 
     def save(self):
         if not self.number:
             self.number = self.question.options.count() + 2
+        
         return super().save()
 
     def __str__(self):
@@ -31,7 +43,7 @@ class QuestionOption(models.Model):
 class Voting(models.Model):
     name = models.CharField(max_length=200)
     desc = models.TextField(blank=True, null=True)
-    question = models.ForeignKey(Question, related_name='voting', on_delete=models.CASCADE)
+    question = models.ManyToManyField(Question, related_name='voting')
 
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
@@ -99,19 +111,21 @@ class Voting(models.Model):
 
     def do_postproc(self):
         tally = self.tally
-        options = self.question.options.all()
-
+        questions = self.question.all()
         opts = []
-        for opt in options:
-            if isinstance(tally, list):
-                votes = tally.count(opt.number)
-            else:
-                votes = 0
-            opts.append({
-                'option': opt.option,
-                'number': opt.number,
-                'votes': votes
-            })
+        for question in questions:
+            options = question.options.all()
+            
+            for opt in options:
+                if isinstance(tally, list):
+                    votes = tally.count(opt.number)
+                else:
+                    votes = 0
+                opts.append({
+                    'option': opt.option,
+                    'number': opt.number,
+                    'votes': votes
+                })
 
         data = { 'type': 'IDENTITY', 'options': opts }
         postp = mods.post('postproc', json=data)
