@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+
+{% load i18n static %}
+
+{% block extrahead %}
+    <link type="text/css" rel="stylesheet"
+         href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+    <link type="text/css" rel="stylesheet"
+         href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css" />
+    <link type="text/css" rel="stylesheet" href="{% static "voting/style.css" %}" />
+{% endblock %}
+
+
+{% block content %}
+    <h1 style="text-align:center">Votaciones</h1>
+    <body>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <td>Id</td>
+                    <td>Name</td>
+                    <td>Description</td>
+                    <td>Start Date</td>
+                    <td>End Date</td>
+                </tr>
+            </thead>
+            <tbody>
+                {% if votaciones %}
+                        {% for votacion in votaciones %} 
+                        <tr>
+                            <td>{{votacion.id}}</td>
+                            <td>{{votacion.name}}</td>
+                            <td>{{votacion.desc}}</td>
+                            <td>{{votacion.start_date}}</td>
+                            <td>{{votacion.end_date}}</td>
+                        </tr>
+                    {% endfor %}   
+                {% else %}                   
+                <h3 style="text-align:center">Listado de Votaciones</h3>                       
+                {% endif %}
+            </tbody>
+        </table>                    
+    </body>
+{% endblock %}
