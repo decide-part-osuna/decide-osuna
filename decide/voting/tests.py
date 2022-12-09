@@ -216,7 +216,9 @@ class VotingModelTestCase(BaseTestCase):
         q.questionYesNO = True
         q.save()
         
-        self.v = Voting(name='Votacion', question=q)
+        self.v = Voting
+        self.v.name='Votacion'
+        self.v.question=q
         self.v.save()
         super().setUp()
 
