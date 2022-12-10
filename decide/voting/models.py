@@ -6,6 +6,13 @@ from django.dispatch import receiver
 from base import mods
 from base.models import Auth, Key
 
+from django.shortcuts import render, get_object_or_404, HttpResponse, redirect
+from django.conf import settings
+from django.core.mail import EmailMultiAlternatives
+from django.contrib import messages
+from django.template.loader import get_template
+from visualizer.models import Mail
+
 
 class Question(models.Model):
     
@@ -53,6 +60,22 @@ class Voting(models.Model):
 
     tally = JSONField(blank=True, null=True)
     postproc = JSONField(blank=True, null=True)
+
+
+    def enviar_correo(self):
+        for mailList in Mail.objects.filter(voting_id=self.id):
+            correo = mailList.mail
+            voting=Voting.objects.get(id=self.id)
+            mensaje = 'Ya están los resultados de la votación: '+voting.name+ '\n para poder verlos sólamente tienes que acceder, dentro de la url de la app a "/visualizer/+' + str(voting.id)+'"'
+            context = {'mensaje': mensaje, 'mail': correo}
+            plantilla = get_template('plantilla_mail.html')
+            content = plantilla.render(context)
+            asunto = 'Resultados de votación DECIDE'
+            email = EmailMultiAlternatives(asunto, content, settings.EMAIL_HOST_USER, [correo])
+            email.fail_silently = False
+            email.attach_alternative(content, 'text/html')
+            email.send()
+
 
     def create_pubkey(self):
         if self.pub_key or not self.auths.count():
@@ -132,6 +155,9 @@ class Voting(models.Model):
 
         self.postproc = postp
         self.save()
+        
+        self.enviar_correo()
+        
 
     def __str__(self):
         return self.name
