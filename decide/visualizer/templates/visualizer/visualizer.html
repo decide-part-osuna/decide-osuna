@@ -22,7 +22,7 @@
                 <form v-if="!voting.start_date || !voting.end_date" action="{% url 'listaCorreos' voting_id %}" method="POST">{% csrf_token %}
                     <div class="form-row">
                       <label for="card-element">
-                        Correo electrónico
+                        Apúntate a la lista de correos y cuando estén los resultados le avisaremos
                   
                       </label>
                       <input class="form-control" type="email" placeholder="ejemplo@ejemplo.com" name="email">
