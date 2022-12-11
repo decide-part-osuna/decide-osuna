@@ -16,9 +16,23 @@
 
     <div class="voting container">
         <h1>[[ voting.id ]] - [[ voting.name ]]</h1>
-
         <h2 v-if="!voting.start_date">Votación no comenzada</h2>
         <h2 v-else-if="!voting.end_date">Votación en curso</h2>
+ 
+                <form v-if="!voting.start_date || !voting.end_date" action="{% url 'listaCorreos' voting_id %}" method="POST">{% csrf_token %}
+                    <div class="form-row">
+                      <label for="card-element">
+                        Apúntate a la lista de correos y cuando estén los resultados le avisaremos
+                  
+                      </label>
+                      <input class="form-control" type="email" placeholder="ejemplo@ejemplo.com" name="email">
+                    </div>
+                    
+                    <b-button type="submit" variant="primary">
+                        {% trans "Send" %}
+                    </b-button>
+                </form>
+       
         <div v-else>
             <h2 class="heading">Resultados:</h2>
             <div v-for="quest in voting.question" :key="quest.id">

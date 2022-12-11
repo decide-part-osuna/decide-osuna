@@ -5,6 +5,19 @@ from django.http import Http404
 
 from base import mods
 
+from django.shortcuts import render, get_object_or_404, HttpResponse, redirect
+from django.template.loader import get_template
+from visualizer.models import Mail
+
+def listaCorreos(request, voting_id):
+        if request.method == 'POST':
+            email = request.POST["email"]
+            listaCorreos = Mail(mail=email,voting_id=voting_id)
+            if not Mail.objects.filter(mail=email, voting_id=voting_id).exists():
+                listaCorreos.save()
+            return redirect('Visualizer', str(voting_id))
+        
+        
 
 class VisualizerView(TemplateView):
     template_name = 'visualizer/visualizer.html'
@@ -19,4 +32,4 @@ class VisualizerView(TemplateView):
         except:
             raise Http404
 
-        return context
+        return context       
