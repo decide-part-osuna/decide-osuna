@@ -32,7 +32,7 @@ class LogoutView(APIView):
         except ObjectDoesNotExist:
             pass
 
-        return Response({})
+        return render(request, 'welcome.html')
 
 
 class RegisterView(APIView):

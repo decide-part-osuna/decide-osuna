@@ -94,6 +94,7 @@ MODULES = [
     'store',
     'visualizer',
     'voting',
+    'welcome',
 ]
 
 BASEURL = 'http://localhost:8000'
