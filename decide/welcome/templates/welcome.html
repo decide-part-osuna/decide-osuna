@@ -17,8 +17,8 @@
     </div>
     <div class="col-md-12">
         <h2>If you have an account, you can Login here:</h2>
-        <form action="{% url 'register_user' %}" method=GET></form>
-        <input type="submit" value="Submit" class="btn btn-secondary">
+        <form action="{% url 'login' %}" method=GET></form>
+        <input type="submit" value="Login" class="btn btn-secondary">
 		</form>
     </div>
     {% elif not user.is_anonymous %}
