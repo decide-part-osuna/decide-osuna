@@ -10,7 +10,6 @@ from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist
-from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render
 
 from .serializers import UserSerializer
@@ -43,11 +42,6 @@ class RegisterView(APIView):
         postData = request.POST
         errorList = []
 
-        key = request.data.get('token', '')
-        tk = get_object_or_404(Token, key=key)
-        if not tk.user.is_superuser:
-            return Response({}, status=HTTP_401_UNAUTHORIZED)
-
         username = postData.get('userName')
         pwd = postData.get('password')
         pwd2 = postData.get('password2')
@@ -59,12 +53,12 @@ class RegisterView(APIView):
                 errorMessage = "You have to introduce a password"
                 errorList.append(errorMessage)
             if not pwd2:
-                errorMesaage = "You have to repeat your password"
+                errorMessage = "You have to repeat your password"
                 errorList.append(errorMessage)
             if pwd != pwd2:
                 errorMessage = "The passwords introduced have to be the same"
                 errorList.append(errorMessage)
-            return render(request, 'authentication/RegisterView.html', {'errorList':errorList})
+            return render(request, 'authentication/RegisterView.html', {'errores':errorList})
         
         name = '' 
         surname = ''
@@ -75,22 +69,22 @@ class RegisterView(APIView):
             surname = postData.get('surname')
         if postData.get('email'):
             email = postData.get('email')
-            if "@gmail.com" not in email or "@yahoo.es" not in email or "@hotmail.com" not in email or "hotmail.es" not in email or "@outlook.com" not in email or "@alum.us.es" not in email or "@us.es" not in email:
-                errorMessage = "You have to enter a valid email. This system allows the following endinds: @gmail.com, @yahoo.es, @hotmail.com, hotmail.es, @outlook.com, @alum.us.es, @us.es"
+            if "@gmail.com" not in email and "@yahoo.es" not in email and "@hotmail.com" not in email and "@hotmail.es" not in email and "@outlook.com" not in email and "@alum.us.es" not in email and "@us.es" not in email:
+                errorMessage = "You have to enter a valid email. This system allows the following endinds: @gmail.com, @yahoo.es, @hotmail.com, @hotmail.es, @outlook.com, @alum.us.es, @us.es"
                 errorList.append(errorMessage)
-                return render(request, 'authentication/RegisterView.html', {'errorList':errorList})
+                return render(request, 'authentication/RegisterView.html', {'errores':errorList})
         
         try:
             user = User(username=username)
             user.set_password(pwd)
             if name != '':
-                user.set_first_name(name)
+                user.first_name = name
             if surname != '':
-                user.set_last_name(surname)
+                user.last_name = surname
             if email != '':
-                email.set_email(email)
+                user.email = email
             user.save()
-            token, _ = Token.objects.get_or_create(user=user)
+            Token.objects.create(user=user)
         except IntegrityError:
             return Response({}, status=HTTP_400_BAD_REQUEST)
-        return Response({'user_pk': user.pk, 'token': token.key}, HTTP_201_CREATED)
+        return render(request, 'welcome.html', {'message': "Se ha registrado correctamente al usuario con nombre: " + username})
