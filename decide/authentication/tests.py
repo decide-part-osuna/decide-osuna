@@ -154,6 +154,7 @@ class RegisterTestCase(StaticLiveServerTestCase):
 
         self.base.tearDown()
 
+    #Positive registration tests
     def test_register(self):
         self.driver.get(f'{self.live_server_url}/authentication/register/')
         self.driver.find_element(By.NAME,'userName').send_keys('UserTest1')
@@ -162,4 +163,11 @@ class RegisterTestCase(StaticLiveServerTestCase):
         self.driver.find_element(By.NAME,'email').send_keys('exampleTest@gmail.com')
         self.driver.find_element(By.NAME,'password').send_keys('test1')
         self.driver.find_element(By.NAME,'password2').send_keys('test1', Keys.ENTER)
+        self.assertTrue(self.driver.title == 'Welcome')
+    
+    def test_register_only_username_and_password(self):
+        self.driver.get(f'{self.live_server_url}/authentication/register/')
+        self.driver.find_element(By.NAME,'userName').send_keys('UserTest2')
+        self.driver.find_element(By.NAME,'password').send_keys('test2')
+        self.driver.find_element(By.NAME,'password2').send_keys('test2', Keys.ENTER)
         self.assertTrue(self.driver.title == 'Welcome')
