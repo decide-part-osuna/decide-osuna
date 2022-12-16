@@ -7,6 +7,14 @@ from rest_framework.authtoken.models import Token
 
 from base import mods
 
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
+
+from base.tests import BaseTestCase
 
 class AuthTestCase(APITestCase):
 
@@ -85,46 +93,73 @@ class AuthTestCase(APITestCase):
 
         self.assertEqual(Token.objects.filter(user__username='voter1').count(), 0)
 
-    def test_register_bad_permissions(self):
-        data = {'username': 'voter1', 'password': '123'}
-        response = self.client.post('/authentication/login/', data, format='json')
-        self.assertEqual(response.status_code, 200)
-        token = response.json()
+    #def test_register_bad_permissions(self):
+    #    data = {'username': 'voter1', 'password': '123'}
+    #    response = self.client.post('/authentication/login/', data, format='json')
+    #    self.assertEqual(response.status_code, 200)
+    #    token = response.json()
 
-        token.update({'username': 'user1'})
-        response = self.client.post('/authentication/register/', token, format='json')
-        self.assertEqual(response.status_code, 401)
+    #    token.update({'username': 'user1'})
+    #    response = self.client.post('/authentication/register/', token, format='json')
+    #    self.assertEqual(response.status_code, 401)
 
-    def test_register_bad_request(self):
-        data = {'username': 'admin', 'password': 'admin'}
-        response = self.client.post('/authentication/login/', data, format='json')
-        self.assertEqual(response.status_code, 200)
-        token = response.json()
+    #def test_register_bad_request(self):
+    #    data = {'username': 'admin', 'password': 'admin'}
+    #    response = self.client.post('/authentication/login/', data, format='json')
+    #    self.assertEqual(response.status_code, 200)
+    #    token = response.json()
 
-        token.update({'username': 'user1'})
-        response = self.client.post('/authentication/register/', token, format='json')
-        self.assertEqual(response.status_code, 400)
+    #    token.update({'username': 'user1'})
+    #    response = self.client.post('/authentication/register/', token, format='json')
+    #   self.assertEqual(response.status_code, 400)
 
-    def test_register_user_already_exist(self):
-        data = {'username': 'admin', 'password': 'admin'}
-        response = self.client.post('/authentication/login/', data, format='json')
-        self.assertEqual(response.status_code, 200)
-        token = response.json()
+    #def test_register_user_already_exist(self):
+    #    data = {'username': 'admin', 'password': 'admin'}
+    #    response = self.client.post('/authentication/login/', data, format='json')
+    #    self.assertEqual(response.status_code, 200)
+    #    token = response.json()
 
-        token.update(data)
-        response = self.client.post('/authentication/register/', token, format='json')
-        self.assertEqual(response.status_code, 400)
+    #    token.update(data)
+    #    response = self.client.post('/authentication/register/', token, format='json')
+    #    self.assertEqual(response.status_code, 400)
+
+    #def test_register(self):
+    #    data = {'username': 'admin', 'password': 'admin'}
+    #    response = self.client.post('/authentication/login/', data, format='json')
+    #    self.assertEqual(response.status_code, 200)
+    #    token = response.json()
+
+    #    token.update({'username': 'user1', 'password': 'pwd1'})
+    #    response = self.client.post('/authentication/register/', token, format='json')
+    #    self.assertEqual(response.status_code, 201)
+    #    self.assertEqual(
+    #        sorted(list(response.json().keys())),
+    #        ['token', 'user_pk']
+    #    )
+
+class RegisterTestCase(StaticLiveServerTestCase):
+    def setUp(self):
+        self.base = BaseTestCase()
+        self.base.setUp()
+
+        options = webdriver.ChromeOptions()
+        options.headless = False
+        self.driver = webdriver.Chrome(options = options)
+
+        super().setUp()
+
+    def tearDown(self):
+        super().tearDown()
+        self.driver.quit()
+
+        self.base.tearDown()
 
     def test_register(self):
-        data = {'username': 'admin', 'password': 'admin'}
-        response = self.client.post('/authentication/login/', data, format='json')
-        self.assertEqual(response.status_code, 200)
-        token = response.json()
-
-        token.update({'username': 'user1', 'password': 'pwd1'})
-        response = self.client.post('/authentication/register/', token, format='json')
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(
-            sorted(list(response.json().keys())),
-            ['token', 'user_pk']
-        )
+        self.driver.get(f'{self.live_server_url}/authentication/register/')
+        self.driver.find_element(By.NAME,'userName').send_keys('UserTest1')
+        self.driver.find_element(By.NAME,'name').send_keys('Usertest')
+        self.driver.find_element(By.NAME,'surname').send_keys('Register Test')
+        self.driver.find_element(By.NAME,'email').send_keys('exampleTest@gmail.com')
+        self.driver.find_element(By.NAME,'password').send_keys('test1')
+        self.driver.find_element(By.NAME,'password2').send_keys('test1', Keys.ENTER)
+        self.assertTrue(self.driver.title == 'Welcome')
