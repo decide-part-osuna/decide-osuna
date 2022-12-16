@@ -143,7 +143,7 @@ class RegisterTestCase(StaticLiveServerTestCase):
         self.base.setUp()
 
         options = webdriver.ChromeOptions()
-        options.headless = False
+        options.headless = True
         self.driver = webdriver.Chrome(options = options)
 
         super().setUp()
@@ -171,3 +171,13 @@ class RegisterTestCase(StaticLiveServerTestCase):
         self.driver.find_element(By.NAME,'password').send_keys('test2')
         self.driver.find_element(By.NAME,'password2').send_keys('test2', Keys.ENTER)
         self.assertTrue(self.driver.title == 'Welcome')
+
+    #Negative registration tests
+    def negative_test_register_no_username(self):
+        self.driver.get(f'{self.live_server_url}/authentication/register/')        
+        self.driver.find_element(By.NAME,'name').send_keys('Usertest Negative')
+        self.driver.find_element(By.NAME,'surname').send_keys('RegisterNegative Test')
+        self.driver.find_element(By.NAME,'email').send_keys('exampleNegativeTest@gmail.com')
+        self.driver.find_element(By.NAME,'password').send_keys('testN1')
+        self.driver.find_element(By.NAME,'password2').send_keys('testN1', Keys.ENTER)
+        self.assertTrue(self.driver.title == 'Register')
