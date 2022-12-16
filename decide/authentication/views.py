@@ -45,7 +45,7 @@ class RegisterView(APIView):
         username = postData.get('userName')
         pwd = postData.get('password')
         pwd2 = postData.get('password2')
-        if not username or not pwd or not pwd2:
+        if not username or not pwd or not pwd2 or pwd != pwd2:
             if not username:
                 errorMessage = "You have to introduce an username"
                 errorList.append(errorMessage)
