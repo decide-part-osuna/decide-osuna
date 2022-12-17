@@ -266,3 +266,9 @@ class LoginUserTestCase(StaticLiveServerTestCase):
         self.driver.find_element(By.NAME,'username').send_keys('UserTest1')
         self.driver.find_element(By.NAME,'password').send_keys('aaaaaaaaaaaa', Keys.ENTER)
         self.assertTrue(self.driver.title == 'Login')
+
+    def negative_test_login_unexistant_username(self)
+        self.driver.get(f'{self.live_server_url}/authentication/loginUser/')
+        self.driver.find_element(By.NAME,'username').send_keys('UsuarioQueNoExiste6519')
+        self.driver.find_element(By.NAME,'password').send_keys('TestUsuario1', Keys.ENTER)
+        self.assertTrue(self.driver.title == 'Login')
