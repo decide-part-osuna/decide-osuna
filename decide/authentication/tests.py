@@ -219,3 +219,32 @@ class RegisterTestCase(StaticLiveServerTestCase):
         self.driver.find_element(By.NAME,'email').send_keys('exampleNegativeTest25@gmail.com')
         self.driver.find_element(By.NAME,'password1').send_keys('testN5', Keys.ENTER)
         self.assertTrue(self.driver.title == 'Register')
+
+class LoginUserTestCase(StaticLiveServerTestCase):
+    def setUp(self):
+        self.base = BaseTestCase()
+        self.base.setUp()
+
+        options = webdriver.ChromeOptions()
+        options.headless = True
+        self.driver = webdriver.Chrome(options = options)
+
+        u = User(username='UserTest1')
+        u.set_password('TestUsuario1')
+        u.save()
+
+        super().setUp()
+
+    def tearDown(self):
+        super().tearDown()
+        self.driver.quit()
+
+        self.base.tearDown()
+
+    #Positive cases
+
+    def test_loginUser(self):
+        self.driver.get(f'{self.live_server_url}/authentication/loginUser/')
+        self.driver.find_element(By.NAME,'username').send_keys('UserTest1')
+        self.driver.find_element(By.NAME,'password').send_keys('TestUsuario1')
+        self.assertTrue(self.driver.title == 'Welcome')
