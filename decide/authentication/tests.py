@@ -127,7 +127,13 @@ class AuthTestCase(APITestCase):
         data = {'userName': 'UserTest1', 'name': 'Usertest', 'surname': 'Register Test', 'email':'exampleTest@gmail.com', 'password':'test1', 'password2': 'test1'}
         response = self.client.post('/authentication/register/', data, format='json')
         self.assertEqual(response.status_code, 200)
-        
+
+    def test_register_only_username_and_password(self):
+        data = {'userName': 'UserTest2', 'password':'test2', 'password2': 'test2'}
+        response = self.client.post('/authentication/register/', data, format='json')
+        self.assertEqual(response.status_code, 200)
+
+    
 class RegisterTestCase(StaticLiveServerTestCase):
     def setUp(self):
         self.base = BaseTestCase()
