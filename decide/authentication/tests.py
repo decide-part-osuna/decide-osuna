@@ -210,3 +210,66 @@ class RegisterTestCase(StaticLiveServerTestCase):
         self.driver.find_element(By.NAME,'password').send_keys('testN4')
         self.driver.find_element(By.NAME,'password2').send_keys('testN', Keys.ENTER)
         self.assertTrue(self.driver.title == 'Register')
+
+    def negative_test_register_no_second_password(self):
+        self.driver.get(f'{self.live_server_url}/authentication/register/')
+        self.driver.find_element(By.NAME,'userName').send_keys('UserTestNegative5')
+        self.driver.find_element(By.NAME,'name').send_keys('Usertest Negative5')
+        self.driver.find_element(By.NAME,'surname').send_keys('RegisterNegative Test5')
+        self.driver.find_element(By.NAME,'email').send_keys('exampleNegativeTest5@gmail.com')
+        self.driver.find_element(By.NAME,'password').send_keys('testN5', Keys.ENTER)
+        self.assertTrue(self.driver.title == 'Register')
+
+class LoginUserTestCase(StaticLiveServerTestCase):
+    def setUp(self):
+        self.base = BaseTestCase()
+        self.base.setUp()
+
+        options = webdriver.ChromeOptions()
+        options.headless = True
+        self.driver = webdriver.Chrome(options = options)
+
+        u = User(username='UserTest1')
+        u.set_password('TestUsuario1')
+        u.save()
+        
+        super().setUp()
+
+    def tearDown(self):
+        super().tearDown()
+        self.driver.quit()
+
+        self.base.tearDown()
+
+    #Positive cases
+
+    def test_loginUser(self):
+        
+        self.driver.get(f'{self.live_server_url}/authentication/loginUser/')
+        self.driver.find_element(By.NAME,'username').send_keys('UserTest1')
+        self.driver.find_element(By.NAME,'password').send_keys('TestUsuario1', Keys.ENTER)
+        self.assertTrue(self.driver.title == 'Welcome')
+    
+    #Negative cases
+
+    def negative_test_login_no_username(self):
+        self.driver.get(f'{self.live_server_url}/authentication/loginUser/')        
+        self.driver.find_element(By.NAME,'password').send_keys('TestUsuario1', Keys.ENTER)
+        self.assertTrue(self.driver.title == 'Login')
+
+    def negative_test_login_no_password(self):
+        self.driver.get(f'{self.live_server_url}/authentication/loginUser/')
+        self.driver.find_element(By.NAME,'username').send_keys('UserTest1', Keys.ENTER)
+        self.assertTrue(self.driver.title == 'Login')
+
+    def negative_test_login_wrong_password(self):
+        self.driver.get(f'{self.live_server_url}/authentication/loginUser/')
+        self.driver.find_element(By.NAME,'username').send_keys('UserTest1')
+        self.driver.find_element(By.NAME,'password').send_keys('aaaaaaaaaaaa', Keys.ENTER)
+        self.assertTrue(self.driver.title == 'Login')
+
+    def negative_test_login_unexistant_username(self):
+        self.driver.get(f'{self.live_server_url}/authentication/loginUser/')
+        self.driver.find_element(By.NAME,'username').send_keys('UsuarioQueNoExiste6519')
+        self.driver.find_element(By.NAME,'password').send_keys('TestUsuario1', Keys.ENTER)
+        self.assertTrue(self.driver.title == 'Login')
