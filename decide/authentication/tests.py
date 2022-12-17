@@ -210,3 +210,12 @@ class RegisterTestCase(StaticLiveServerTestCase):
         self.driver.find_element(By.NAME,'password').send_keys('testN4')
         self.driver.find_element(By.NAME,'password2').send_keys('testN', Keys.ENTER)
         self.assertTrue(self.driver.title == 'Register')
+
+    def negative_test_register_no_second_password(self):
+        self.driver.get(f'{self.live_server_url}/authentication/register/')
+        self.driver.find_element(By.NAME,'userName').send_keys('UserTestNegative5')
+        self.driver.find_element(By.NAME,'name').send_keys('Usertest Negative5')
+        self.driver.find_element(By.NAME,'surname').send_keys('RegisterNegative Test5')
+        self.driver.find_element(By.NAME,'email').send_keys('exampleNegativeTest25@gmail.com')
+        self.driver.find_element(By.NAME,'password1').send_keys('testN5', Keys.ENTER)
+        self.assertTrue(self.driver.title == 'Register')
