@@ -246,5 +246,12 @@ class LoginUserTestCase(StaticLiveServerTestCase):
     def test_loginUser(self):
         self.driver.get(f'{self.live_server_url}/authentication/loginUser/')
         self.driver.find_element(By.NAME,'username').send_keys('UserTest1')
-        self.driver.find_element(By.NAME,'password').send_keys('TestUsuario1')
+        self.driver.find_element(By.NAME,'password').send_keys('TestUsuario1', Keys.ENTER)
         self.assertTrue(self.driver.title == 'Welcome')
+    
+    #Negative cases
+
+    def negative_test_login_no_username(self):
+        self.driver.get(f'{self.live_server_url}/authentication/loginUser/')        
+        self.driver.find_element(By.NAME,'password').send_keys('TestUsuario1', Keys.ENTER)
+        self.assertTrue(self.driver.title == 'Login')
