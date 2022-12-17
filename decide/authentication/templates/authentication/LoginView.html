@@ -1,0 +1,56 @@
+{% extends 'baseAuth.html' %}
+{% load socialaccount %}
+
+{% block content %}
+
+<title>Login</title>
+
+{% if form.errors %}
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+	There was an error with your form...
+	<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+{% endif %}
+
+<div class="shadow p-4 mb-5 bg-body rounded">
+	<h1>Login</h1>
+	<br />
+
+
+	<form action="{% url 'login_user' %}" method=POST>
+
+		{% csrf_token %}
+
+		{% for error in errorList %}
+		<div class="alert alert-danger" role="alert">
+			{{error}}
+		</div>
+		{% endfor %}
+
+		<div class="row mt-2">
+			<div class="col-md-6"><label class="labels">Username</label><input type="text" name="username"
+					class="form-control"></div>
+			<div class="col-md-6"><label class="labels">Password</label><input type="password" name="password"
+					class="form-control"></div>
+		</div>
+
+		<br /><br />
+		<input type="submit" id="submit" value="Submit" class="btn btn-secondary">
+
+	</form>
+	<br />
+</div>
+<div class="shadow p-4 mb-5 bg-body rounded">
+	<h1>Authentication with google</h1>
+<br/>
+		<div class="column-12">
+			<button class="btn btn-outline-info">
+				<a href="{% provider_login_url 'google' %}?next=/">
+					<i class="fab fa-goggle"></i>
+					Login with google
+				</a>
+			</button>
+		</div>
+<br/>
+{% endblock %}
