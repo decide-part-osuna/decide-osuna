@@ -1,0 +1,40 @@
+{% extends 'baseAuth.html' %}
+{% block content %}
+<title>Welcome</title>
+<div class="shadow p-4 mb-5 bg-body rounded">
+    <h1>Welcome to our EGC proyect</h1>
+    {% if message %}
+    <div class="alert alert-success" role="alert">
+        <h1>{{message}}</h1>
+    </div>
+    {% endif %}
+    {% if not user.is_anonymous %}
+    <div class="alert alert-success" role="alert">
+        <h1>Hello, {{user}}</h1>
+    </div>
+    {% endif %}
+
+    {% if user.is_anonymous %}
+    <div class="col-md-12">
+        <h2>If you don't have an account, you can Register here:</h2>
+        <form action="{% url 'register_user' %}" method=GET>
+            <input type="submit" value="Register" class="btn btn-secondary">
+        </form>
+    </div>
+    <div class="col-md-12">
+        <h2>If you have an account, you can Login here:</h2>
+        <form action="{% url 'login' %}" method=GET>
+            <input type="submit" value="Login" class="btn btn-secondary">
+        </form>
+    </div>
+    {% elif not user.is_anonymous %}
+    <div class="col-md-12">
+        <h2>You can Logout here:</h2>
+        <form action="{% url 'logout' %}" method=POST>
+            <input type="submit" value="Submit" class="btn btn-secondary">
+        </form>
+    </div>
+    {% endif %}
+    <h2></h2>
+</div>
+{% endblock %}
