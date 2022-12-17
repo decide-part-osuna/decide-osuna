@@ -1,37 +1,47 @@
 {% extends 'baseAuth.html' %}
 {% load socialaccount %}
 
-{% block content %}      
+{% block content %}
+
+<title>Login</title>
 
 {% if form.errors %}
-	<div class="alert alert-warning alert-dismissible fade show" role="alert">
-            There was an error with your form...
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+	There was an error with your form...
+	<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
 
 {% endif %}
 
 <div class="shadow p-4 mb-5 bg-body rounded">
 	<h1>Login</h1>
-<br/>
+	<br />
 
 
-		<form action="{% url 'login_user' %}" method=POST>
-			
-			{% csrf_token %}
+	<form action="{% url 'login_user' %}" method=POST>
 
-			{{ form.as_p }}
+		{% csrf_token %}
 
-<br/><br/>
-		<input type="submit" value="Submit" class="btn btn-secondary">
+		{% for error in errorList %}
+		<div class="alert alert-danger" role="alert">
+			{{error}}
+		</div>
+		{% endfor %}
 
-		</form>
+		<div class="row mt-2">
+			<div class="col-md-6"><label class="labels">Username</label><input type="text" name="username"
+					class="form-control"></div>
+			<div class="col-md-6"><label class="labels">Password</label><input type="password" name="password"
+					class="form-control"></div>
+		</div>
 
-    <p class="text-center">Don't have an account? <a href="{% url 'register_user' %}">Create an account</a>.</p>
-<br/>
+		<br /><br />
+		<input type="submit" id="submit" value="Submit" class="btn btn-secondary">
+
+	</form>
+	<br />
 </div>
-
-	<div class="shadow p-4 mb-5 bg-body rounded">
+<div class="shadow p-4 mb-5 bg-body rounded">
 	<h1>Authentication with google</h1>
 <br/>
 		<div class="column-12">
@@ -43,5 +53,4 @@
 			</button>
 		</div>
 <br/>
-
 {% endblock %}

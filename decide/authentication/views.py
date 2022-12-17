@@ -16,6 +16,8 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, authenticate
 from django.shortcuts import render
 from authentication.models import Metodos
+from django.shortcuts import render
+from django.contrib.auth.hashers import check_password
 
 from .serializers import UserSerializer
 
@@ -64,46 +66,39 @@ class RegisterView(APIView):
             return Response({}, status=HTTP_400_BAD_REQUEST)
         return Response({'user_pk': user.pk, 'token': token.key}, HTTP_201_CREATED)
 
-# class LoginView(APIView):
-#     def get(self, request):
-#         form = AuthenticationForm()
-#         return render(request, 'authentication/LoginView.html', {'form':form})
-
-#     def post(self, request):
-#         key = request.data.get('token', '')
-#         tk = get_object_or_404(Token, key=key)
-#         username = request.data.get('username', '')
-#         pwd = request.data.get('password', '')
-#         if not username or not pwd:
-#             return Response({}, status=HTTP_400_BAD_REQUEST)
-#         try:
-#             user = authenticate(username=username, password=password)
-#             if user is not None:
-#                 login(request, user)
-#                 messages.info(request, f"You are now logged in as {username}.")
-#                 return redirect("")
-#             else:
-#                 messages.error(request,"Invalid username or password.")
-#             token, _ = Token.objects.get_or_create(user=user)
-#         except IntegrityError:
-#             return Response({}, status=HTTP_400_BAD_REQUEST)
-#         return Response({'user_pk': user.pk, 'token': token.key}, HTTP_200_OK)
-
-
 class LoginView(APIView):
     def get(self, request):
         form = AuthenticationForm()
-        return render(request, 'authentication/LoginView.html', {'form':form})
+        return render(request, 'authentication/LoginView.html',{'form':form})
 
     def post(self, request):
-        username = request.data.get('username')
-        pwd = request.data.get('password')
-        user = Metodos.getUsuarioPorNombre(username)
-        if user:
-            flag = pwd == user.password
-            if flag:
-                messages.info(request, f"You are now logged in as {username}.")
-                return redirect("")
-        else:
-            messages.error(request,"Invalid username or password.")
-        return render (request, 'loginUsuario.html')
+        postData = request.POST
+        errorList = []
+        username = postData.get('username', '')
+        password = postData.get('password', '')
+        if not username or not password:
+            if not username:
+                errorMessage = "You have to introduce an username"
+                errorList.append(errorMessage)
+            if not password:
+                errorMessage = "You have to introduce a password"
+                errorList.append(errorMessage)
+            return render(request, 'authentication/LoginView.html', {'errorList':errorList})
+        try:
+            userTest = Metodos.getUsuarioPorNombre(username)
+            correctPassword = check_password(password, userTest.password)
+            if correctPassword!=True or userTest is None:
+                if correctPassword!=True:
+                    errorMessage = "Wrong password"
+                    errorList.append(errorMessage)
+                return render(request, 'authentication/LoginView.html', {'errorList':errorList})
+            user = authenticate(username=username, password=password, request=request)
+            if user is not None:
+                login(request, user)
+                return render(request, 'welcome.html', {'message': "Succesful login: " + username})
+            else:
+                return render (request, 'authentication/LoginView.html')
+        except:
+            errorMessage = "Non existant user"
+            errorList.append(errorMessage)
+            return render(request, 'authentication/LoginView.html', {'errorList':errorList})
