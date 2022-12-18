@@ -56,7 +56,7 @@ class AuthTestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
 
         user = response.json()
-        self.assertEqual(user['id'], 1)
+        self.assertEqual(user['id'], 3)
         self.assertEqual(user['username'], 'voter1')
 
     def test_getuser_invented_token(self):
@@ -111,7 +111,7 @@ class AuthTestCase(APITestCase):
 
     #    token.update({'username': 'user1'})
     #    response = self.client.post('/authentication/register/', token, format='json')
-    #   self.assertEqual(response.status_code, 400)
+    #    self.assertEqual(response.status_code, 400)
 
     #def test_register_user_already_exist(self):
     #    data = {'username': 'admin', 'password': 'admin'}
@@ -123,17 +123,16 @@ class AuthTestCase(APITestCase):
     #    response = self.client.post('/authentication/register/', token, format='json')
     #    self.assertEqual(response.status_code, 400)
 
+    #Positive registration tests
     def test_register(self):
-        data = {'userName': 'UserTest1', 'name': 'Usertest', 'surname': 'Register Test', 'email':'exampleTest@gmail.com', 'password':'test1', 'password2': 'test1'}
-        response = self.client.post('/authentication/register/', data, format='json')
+        response = self.client.post('/authentication/register/', {'userName': 'UserTest1', 'name': 'Usertest', 'surname':'Register Test', 'email':'exampleTest@gmail.com', 'password':'test1', 'password2':'test1'})
         self.assertEqual(response.status_code, 200)
 
     def test_register_only_username_and_password(self):
-        data = {'userName': 'UserTest2', 'password':'test2', 'password2': 'test2'}
-        response = self.client.post('/authentication/register/', data, format='json')
+        response = self.client.post('/authentication/register/', {'userName': 'UserTest2', 'password':'test2', 'password2': 'test2'})
         self.assertEqual(response.status_code, 200)
+        
 
-    
 class RegisterTestCase(StaticLiveServerTestCase):
     def setUp(self):
         self.base = BaseTestCase()

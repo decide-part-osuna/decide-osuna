@@ -11,7 +11,6 @@ from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render
-
 from .serializers import UserSerializer
 
 
@@ -58,7 +57,7 @@ class RegisterView(APIView):
             if pwd != pwd2:
                 errorMessage = "The passwords introduced have to be the same"
                 errorList.append(errorMessage)
-            return render(request, 'authentication/RegisterView.html', {'errores':errorList})
+            return render(request, 'authentication/RegisterView.html', {'errores':errorList}, status=HTTP_400_BAD_REQUEST) 
         
         name = '' 
         surname = ''
@@ -72,7 +71,7 @@ class RegisterView(APIView):
             if "@gmail.com" not in email and "@yahoo.es" not in email and "@hotmail.com" not in email and "@hotmail.es" not in email and "@outlook.com" not in email and "@alum.us.es" not in email and "@us.es" not in email:
                 errorMessage = "You have to enter a valid email. This system allows the following endinds: @gmail.com, @yahoo.es, @hotmail.com, @hotmail.es, @outlook.com, @alum.us.es, @us.es"
                 errorList.append(errorMessage)
-                return render(request, 'authentication/RegisterView.html', {'errores':errorList})
+                return render(request, 'authentication/RegisterView.html', {'errores':errorList}, status=HTTP_400_BAD_REQUEST)
         
         try:
             user = User(username=username)
@@ -86,5 +85,7 @@ class RegisterView(APIView):
             user.save()
             Token.objects.create(user=user)
         except IntegrityError:
-            return Response({}, status=HTTP_400_BAD_REQUEST)
+            errorMessage = "You're trying to create a user which is already registered, try changing the username and/or email introduced"
+            errorList.append(errorMessage)
+            return render(request, 'authentication/RegisterView.html', {'errores':errorList}, status=HTTP_400_BAD_REQUEST)
         return render(request, 'welcome.html', {'message': "Se ha registrado correctamente al usuario con nombre: " + username})
