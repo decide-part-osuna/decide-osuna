@@ -8,9 +8,26 @@ from .models import Census
 from voting.models import Voting, Question, QuestionOption
 from base import mods
 from base.tests import BaseTestCase
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.conf import settings
 from base.models import Auth
 from django.forms.models import model_to_dict
+
+from django.urls import reverse
+from .models import Census
+
+from django.contrib.auth.models import User
+
+
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from rest_framework.test import APITestCase
+import os.path
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 
 class CensusTestCase(BaseTestCase):
       
@@ -80,3 +97,51 @@ class CensusTestCase(BaseTestCase):
         response = self.client.delete('/census/{}/'.format(20), data, format='json')
         self.assertEqual(response.status_code, 204)
         self.assertEqual(0, Census.objects.count())
+        
+        
+class ImportExportTestCase(StaticLiveServerTestCase):
+
+    def setUp(self):
+        #Load base test functionality for decide
+        self.base = BaseTestCase()
+        self.base.setUp()
+
+        options = webdriver.ChromeOptions()
+        options.headless = True
+        self.driver = webdriver.Chrome(options=options)
+
+        super().setUp()            
+            
+    def tearDown(self):           
+        super().tearDown()
+        self.driver.quit()
+
+        self.base.tearDown()
+        
+    def testExportCsv(self):                    
+            self.driver.get(f'{self.live_server_url}/admin')
+            self.driver.find_element(By.ID,'id_username').send_keys("admin")
+            self.driver.find_element(By.ID,'id_password').send_keys("qwerty",Keys.ENTER)
+            
+            print(self.driver.current_url)
+            self.driver.get(self.live_server_url+'/census/census/export/csv')
+            self.assertTrue(self.live_server_url+"/census/census/export/csv" == self.driver.current_url)
+            
+    def testExportHtml(self):                    
+            self.driver.get(f'{self.live_server_url}/admin')
+            self.driver.find_element(By.ID,'id_username').send_keys("admin")
+            self.driver.find_element(By.ID,'id_password').send_keys("qwerty",Keys.ENTER)
+            
+            print(self.driver.current_url)
+            self.driver.get(self.live_server_url+'/census/census/export/html')
+            self.assertTrue(self.live_server_url+"/census/census/export/html" == self.driver.current_url)
+            
+
+            
+                 
+    
+        
+        
+    
+    
+    
