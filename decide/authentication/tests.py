@@ -216,7 +216,7 @@ class RegisterTestCase(StaticLiveServerTestCase):
         self.driver.find_element(By.NAME,'userName').send_keys('UserTestNegative5')
         self.driver.find_element(By.NAME,'name').send_keys('Usertest Negative5')
         self.driver.find_element(By.NAME,'surname').send_keys('RegisterNegative Test5')
-        self.driver.find_element(By.NAME,'email').send_keys('exampleNegativeTest25@gmail.com')
+        self.driver.find_element(By.NAME,'email').send_keys('exampleNegativeTest5@gmail.com')
         self.driver.find_element(By.NAME,'password').send_keys('testN5', Keys.ENTER)
         self.assertTrue(self.driver.title == 'Register')
 
@@ -232,7 +232,7 @@ class LoginUserTestCase(StaticLiveServerTestCase):
         u = User(username='UserTest1')
         u.set_password('TestUsuario1')
         u.save()
-
+        
         super().setUp()
 
     def tearDown(self):
@@ -244,6 +244,7 @@ class LoginUserTestCase(StaticLiveServerTestCase):
     #Positive cases
 
     def test_loginUser(self):
+        
         self.driver.get(f'{self.live_server_url}/authentication/loginUser/')
         self.driver.find_element(By.NAME,'username').send_keys('UserTest1')
         self.driver.find_element(By.NAME,'password').send_keys('TestUsuario1', Keys.ENTER)
