@@ -22,8 +22,11 @@ class CensusTestCase(BaseTestCase):
         for i in range(5):
             opt = QuestionOption(question=q, option='option {}'.format(i+1))
             opt.save()
-        v = Voting(name='test voting', question=q, id=20)
+        questions=[]
+        v = Voting(name='test voting', id=20)
+        v.question.set(questions)
         v.save()
+
 
         a, _ = Auth.objects.get_or_create(url=settings.BASEURL,
                                           defaults={'me': True, 'name': 'test auth'})
@@ -77,35 +80,3 @@ class CensusTestCase(BaseTestCase):
         response = self.client.delete('/census/{}/'.format(20), data, format='json')
         self.assertEqual(response.status_code, 204)
         self.assertEqual(0, Census.objects.count())
-'''
-    def test_add_new_voters_conflict(self):
-        voting = Voting.objects.get(id=20)
-        data2 = model_to_dict(voting)
-        data = {'voting_id': data2, 'voters': [20]}
-        response = self.client.post('/census/', data, format='json')
-        self.assertEqual(response.status_code, 401)
-
-        self.login(user='noadmin')
-        response = self.client.post('/census/', data, format='json')
-        self.assertEqual(response.status_code, 403)
-
-        self.login()
-        response = self.client.post('/census/', data, format='json')
-        self.assertEqual(response.status_code, 409)
-
-
-    def test_add_new_voters(self):
-        data = {'voting_id': 2, 'voters': [1,2,3,4]}
-        response = self.client.post('/census/', data, format='json')
-        self.assertEqual(response.status_code, 401)
-
-        self.login(user='noadmin')
-        response = self.client.post('/census/', data, format='json')
-        self.assertEqual(response.status_code, 403)
-
-        self.login()
-        response = self.client.post('/census/', data, format='json')
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(len(data.get('voters')), Census.objects.count() - 1)
-
-        '''

@@ -1,6 +1,10 @@
-name: Python application
+name: CI
 
-on: [push]
+on:
+  push:
+    branches: [main, decide-part-osuna-1, decide-part-osuna-2]
+  pull_request:
+    branches: [main, decide-part-osuna-1, decide-part-osuna-2]
 
 jobs:
   build:
