@@ -216,6 +216,41 @@ class VotingTestCase(BaseTestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json(), 'Voting already tallied')
 
+    def testCreateMultiquestionVoting(self):
+        q1 = Question(desc='question1')
+        q1.save()
+        for i in range(5):
+            opt = QuestionOption(question=q1, option='option {}'.format(i+1))
+            opt.save()
+        q2 = Question(desc='question2')
+        q2.save()
+        for i in range(5):
+            opt = QuestionOption(question=q2, option='option {}'.format(i+1))
+            opt.save()
+        v = Voting(name='test voting')
+        v.save()
+        v.question.add(q1)
+        v.question.add(q2)
+        a = v.question.all().count() == 2
+        self.assertTrue(a)
+    
+    def testDeleteQuestionMultiquestion(self):
+        q1 = Question(desc="question 1")
+        q1.save()
+        q2 = Question(desc="question 2")
+        q2.save()
+        QuestionOption(question=q1,option="o1")
+        QuestionOption(question=q1,option="o2")
+        QuestionOption(question=q2,option="o3")
+        QuestionOption(question=q2,option="o4")
+        v=Voting(name="Votacion")
+        v.save()
+        v.question.add(q1)
+        v.question.add(q2)
+        self.assertEquals(v.question.all().count(), 2)
+        v.question.remove(q2)
+        self.assertEquals(v.question.all().count(),1)
+
 class VotingSeleniumTestCase(StaticLiveServerTestCase):
     def setUp(self):
         #Load base test functionality for decide
