@@ -23,7 +23,7 @@
     </div>
     <div class="col-md-12">
         <h2>If you have an account, you can Login here:</h2>
-        <form action="{% url 'login' %}" method=GET>
+        <form action="{% url 'login_user' %}" method=GET>
             <input type="submit" value="Login" class="btn btn-secondary">
         </form>
     </div>
@@ -31,7 +31,7 @@
     <div class="col-md-12">
         <h2>You can Logout here:</h2>
         <form action="{% url 'logout' %}" method=POST>
-            <input type="submit" value="Submit" class="btn btn-secondary">
+            <input type="submit" value="Logout" class="btn btn-secondary">
         </form>
     </div>
     {% endif %}
