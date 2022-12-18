@@ -1,6 +1,7 @@
 import json
 
 from random import choice
+import random
 
 from locust import (
     HttpUser,
@@ -62,14 +63,25 @@ class DefVoters(SequentialTaskSet):
     def on_quit(self):
         self.voter = None
 
+class RegisterUser(TaskSet):
+
+    @task
+    def register(self):
+        x = random.randint(0, 9999999999999999999999999)
+        x = str(x)
+        self.client.post("/authentication/register/", {'userName': 'UserTest'+x, 'name': 'Usertest', 'surname':'Charge Test', 'email':'exampleTest'+x+'@gmail.com', 'password':'testCharge', 'password2':'testCharge'})
+
 class Visualizer(HttpUser):
     host = HOST
     tasks = [DefVisualizer]
     wait_time = between(3,5)
 
-
-
 class Voters(HttpUser):
     host = HOST
     tasks = [DefVoters]
     wait_time= between(3,5)
+
+class Register(HttpUser):
+    host = HOST
+    tasks = [RegisterUser]
+    wait_time = between(3,5)
