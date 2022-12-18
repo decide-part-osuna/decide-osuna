@@ -1,4 +1,5 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/9f65a5fd66db4ea691bd180b1b6a3084)](https://www.codacy.com/gh/decide-part-osuna/decide-osuna/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=decide-part-osuna/decide-osuna&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Coverage/9f65a5fd66db4ea691bd180b1b6a3084)](https://www.codacy.com/gh/decide-part-osuna/decide-osuna/dashboard?utm_source=github.com&utm_medium=referral&utm_content=decide-part-osuna/decide-osuna&utm_campaign=Badge_Coverage)
 
 Plataforma voto electrónico educativa
 =====================================
