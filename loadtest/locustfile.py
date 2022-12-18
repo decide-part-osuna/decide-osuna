@@ -63,6 +63,15 @@ class DefVoters(SequentialTaskSet):
     def on_quit(self):
         self.voter = None
 
+class LoginUser(TaskSet):
+
+    @task
+    def registerAndLogin(self):
+        x = random.randint(0, 9999999999999999999999999)
+        x = str(x)
+        self.client.post("/authentication/register/", {'userName': 'UserTest'+x, 'name': 'Usertest', 'surname':'Charge Test', 'email':'exampleTest'+x+'@gmail.com', 'password':'testCharge', 'password2':'testCharge'})
+        self.client.post("/authentication/loginUser/", {'username': 'UserTest'+x, 'password':'testCharge'})
+
 class RegisterUser(TaskSet):
 
     @task
@@ -80,6 +89,11 @@ class Voters(HttpUser):
     host = HOST
     tasks = [DefVoters]
     wait_time= between(3,5)
+    
+class LoginUser(HttpUser):
+    host = HOST
+    tasks = [LoginUser]
+    wait_time = between(3,5)
 
 class Register(HttpUser):
     host = HOST
