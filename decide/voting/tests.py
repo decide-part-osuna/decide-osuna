@@ -233,24 +233,25 @@ class VotingTestCase(BaseTestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json(), 'Voting already tallied')
 
-# class VotingModelTestCase(BaseTestCase):
-#     def setUp(self):
+class VotingModelTestCase(BaseTestCase):
+    def setUp(self):
         
-#         super().setUp()
-#         q = Question(desc='desc')
-#         q.questionYesNO = True
-#         q.save()
-#         questions=[]
-#         v = Voting(name='Votacion', id=20)
-#         v.question.set(questions)
-#         v.save()
+        q = Question(desc='test yes or no')
+        q.questionYesNO = True
+        q.save()
+        o = QuestionOption(question=q)
+        o.save()
 
 
-#     def tearDown(self):
-#         super().tearDown()
-#         self.v = None
+    def tearDown(self):
+        super().tearDown()
+        self.q = None
 
-#     def testExist(self):
-#         v=Voting.objects.get(name='Votacion')
-#         self.assertEquals(v.question.first()[0].option, "Sí")    
-#         self.assertEquals(v.question.first()[1].option, "No")
+    def testExist(self):
+        q=Question.objects.get(desc='test yes or no')
+        self.assertEquals(str(q), 'test yes or no')
+        
+    def testShowOptions(self):
+        q=Question.objects.get(desc='test yes or no')
+        self.assertEquals(q.options.all()[0].option, 'Sí')
+        self.assertEquals(q.options.all()[1].option, 'No')
