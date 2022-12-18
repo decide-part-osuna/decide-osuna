@@ -30,6 +30,10 @@ class AuthTestCase(APITestCase):
         u2.is_superuser = True
         u2.save()
 
+        u3 = User(username='UserTestLogin')
+        u3.set_password('TestUsuario1')
+        u3.save()
+
     def tearDown(self):
         self.client = None
 
@@ -117,6 +121,32 @@ class AuthTestCase(APITestCase):
 
     def negative_test_register_passwords_dont_match(self):
         response = self.client.post('/authentication/register/', {'userName':'UserNegativeTest4','name': 'Usertest Negative4', 'surname': 'RegisterNegative Test4', 'email':'exampleNegativeTest4@invalid.com', 'password':'test6', 'password2':'test6'})
+        self.assertEqual(response.status_code, 400)
+
+    def negative_test_register_no_second_password(self):
+        response = self.client.post('/authentication/register/', {'userName':'UserNegativeTest5','name': 'Usertest Negative5', 'surname': 'RegisterNegative Test5', 'email':'exampleNegativeTest5@gmail.com', 'password': 'test5'})
+        self.assertEqual(response.status_code, 400)
+
+    #Positive loginUser tests
+    def test_loginUser(self):
+        response = self.client.post('/authentication/loginUser/', {'username': 'UserTestLogin', 'password':'TestUsuario1'})
+        self.assertEqual(response.status_code, 200)
+
+    #Negative loginUser tests
+    def negative_test_loginUser_no_username(self):
+        response = self.client.post('/authentication/loginUser/', {'password':'TestUsuario1'})
+        self.assertEqual(response.status_code, 400)
+
+    def negative_test_loginUser_no_password(self):
+        response = self.client.post('/authentication/loginUser/', {'username': 'UserTestLogin'})
+        self.assertEqual(response.status_code, 400)
+
+    def negative_test_loginUser_wrong_password(self):
+        response = self.client.post('/authentication/loginUser/', {'username': 'UserTestLogin', 'password':'aaaaaaaaa'})
+        self.assertEqual(response.status_code, 400)
+
+    def negative_test_loginUser_wrong_user(self):
+        response = self.client.post('/authentication/loginUser/', {'username': 'EsteUsuarioNoExiste9645', 'password':'TestUsuario1'})
         self.assertEqual(response.status_code, 400)
     
 class RegisterTestCase(StaticLiveServerTestCase):

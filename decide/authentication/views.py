@@ -113,7 +113,7 @@ class LoginView(APIView):
             if not password:
                 errorMessage = "You have to introduce a password"
                 errorList.append(errorMessage)
-            return render(request, 'authentication/LoginView.html', {'errorList':errorList})
+            return render(request, 'authentication/LoginView.html', {'errorList':errorList}, status=HTTP_400_BAD_REQUEST)
         try:
             userTest = Metodos.getUsuarioPorNombre(username)
             correctPassword = check_password(password, userTest.password)
@@ -121,7 +121,7 @@ class LoginView(APIView):
                 if correctPassword!=True:
                     errorMessage = "Wrong password"
                     errorList.append(errorMessage)
-                return render(request, 'authentication/LoginView.html', {'errorList':errorList})
+                return render(request, 'authentication/LoginView.html', {'errorList':errorList}, status=HTTP_400_BAD_REQUEST)
             user = authenticate(username=username, password=password, request=request)
             if user is not None:
                 login(request, user)
@@ -131,4 +131,4 @@ class LoginView(APIView):
         except:
             errorMessage = "Non existant user"
             errorList.append(errorMessage)
-            return render(request, 'authentication/LoginView.html', {'errorList':errorList})
+            return render(request, 'authentication/LoginView.html', {'errorList':errorList}, status=HTTP_400_BAD_REQUEST)
