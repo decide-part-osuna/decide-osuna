@@ -9,11 +9,20 @@ from rest_framework.test import APITestCase
 
 from base import mods
 from base.tests import BaseTestCase
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from census.models import Census
 from mixnet.mixcrypt import ElGamal
 from mixnet.mixcrypt import MixCrypt
 from mixnet.models import Auth
-from voting.models import Voting, Question, QuestionOption
+from voting.models import Voting, Question, QuestionOption, questionYesNO
+
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -36,12 +45,13 @@ class VotingTestCase(BaseTestCase):
         return k.encrypt(msg)
 
     def create_voting(self):
+        v = Voting(name='test voting', id=20)
+        v.save()
         q = Question(desc='test question')
         q.save()
         for i in range(5):
             opt = QuestionOption(question=q, option='option {}'.format(i+1))
             opt.save()
-        v = Voting(name='test voting', id=20)
         questions=[]
         v.question.set(questions)
         v.save()
@@ -131,33 +141,6 @@ class VotingTestCase(BaseTestCase):
         self.login()
         response = mods.post('voting', params=data, response=True)
         self.assertEqual(response.status_code, 400)
-        
-        # data = {
-        #     'name': 'Example',
-        #     'desc': 'Description example',
-        #     "question": [
-        #         {
-        #             "desc": "I want a",
-        #             "options": [
-        #                 {
-        #                     "number": 1,
-        #                     "option": "cat"
-        #                 },
-        #                 {
-        #                     "number": 2,
-        #                     "option": "dog"
-        #                 },
-        #                 {
-        #                     "number": 3,
-        #                     "option": "horse"
-        #                 }
-        #             ]   
-        #         }
-        #     ]
-        # }
-
-        # response = self.client.post('/voting/', data, format='json')
-        # self.assertEqual(response.status_code, 201)
 
     def test_update_voting(self):
         voting = self.create_voting()
@@ -237,7 +220,8 @@ class VotingTestCase(BaseTestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json(), 'Voting already tallied')
 
-class VotingModelTestCase(BaseTestCase):
+
+class VotingYesNoModelTestCase(BaseTestCase):
     def setUp(self):
         
         q = Question(desc='test yes or no')
@@ -288,3 +272,200 @@ class VotingListTestCase(BaseTestCase):
     def test_list_votings_by_start_date(self):
         self.client.get('/voting/votingsByEndDate')
         self.assertTemplateUsed('votingsByEndDate.html')
+
+    def testCreateMultiquestionVoting(self):
+        q1 = Question(desc='question1')
+        q1.save()
+        for i in range(5):
+            opt = QuestionOption(question=q1, option='option {}'.format(i+1))
+            opt.save()
+        q2 = Question(desc='question2')
+        q2.save()
+        for i in range(5):
+            opt = QuestionOption(question=q2, option='option {}'.format(i+1))
+            opt.save()
+        v = Voting(name='test voting')
+        v.save()
+        v.question.add(q1)
+        v.question.add(q2)
+        a = v.question.all().count() == 2
+        self.assertTrue(a)
+    
+    def testDeleteQuestionMultiquestion(self):
+        q1 = Question(desc="question 1")
+        q1.save()
+        q2 = Question(desc="question 2")
+        q2.save()
+        QuestionOption(question=q1,option="o1")
+        QuestionOption(question=q1,option="o2")
+        QuestionOption(question=q2,option="o3")
+        QuestionOption(question=q2,option="o4")
+        v=Voting(name="Votacion")
+        v.save()
+        v.question.add(q1)
+        v.question.add(q2)
+        self.assertEquals(v.question.all().count(), 2)
+        v.question.remove(q2)
+        self.assertEquals(v.question.all().count(),1)
+
+class VotingSeleniumTestCase(StaticLiveServerTestCase):
+    def setUp(self):
+        #Load base test functionality for decide
+        self.base = BaseTestCase()
+        self.base.setUp()
+        user_admin = User.objects.all().filter(username='admin').first()
+        a, _ = Auth.objects.get_or_create(url=self.live_server_url,
+                                          defaults={'me': True, 'name': 'test auth'})
+        print(self.live_server_url)
+        self.v = Voting(name='test voting', id=20)
+        self.v.save()
+        q = Question(desc='test question')
+        q.save()
+        for i in range(5):
+            opt = QuestionOption(question=q, option='option {}'.format(i+1))
+            opt.save()
+        
+        questions=[]
+        questions.append(q)
+        print(q)
+        self.v.question.set(questions)
+        self.v.save()
+        self.v.auths.add(a)
+        self.v.save()
+        voters = []
+        voters.append(user_admin)
+        Census.objects.get_or_create(name='ETSII', voting_id=self.v)
+        self.c = Census.objects.all().filter(name='ETSII').first()
+        self.c.voter_id.set(voters)
+        self.c.save()
+
+        options = webdriver.ChromeOptions()
+        # options.headless = True
+        self.driver = webdriver.Chrome(options=options)
+        
+
+        super().setUp()            
+            
+    def tearDown(self):           
+        super().tearDown()
+        self.driver.quit()
+        self.base.tearDown()
+
+    def test_voting_start(self):
+        self.driver.get(f'{self.live_server_url}/admin/')
+        self.driver.find_element(By.ID,'id_username').send_keys("admin")
+        self.driver.find_element(By.ID,'id_password').send_keys("qwerty",Keys.ENTER) 
+        print(self.driver.current_url)
+        #In case of a correct loging, a element with id 'user-tools' is shown in the upper right part
+        self.assertTrue(len(self.driver.find_elements(By.ID,'user-tools'))==1)
+        self.driver.find_element(By.LINK_TEXT, "Votings").click()
+        self.driver.find_element(By.NAME, "_selected_action").click()
+        dropdown = self.driver.find_element(By.NAME, "action")
+        dropdown.find_element(By.XPATH, "//option[. = 'Start']").click()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).click_and_hold().perform()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).perform()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).release().perform()
+        self.driver.find_element(By.NAME, "index").click()
+        self.driver.get(f'{self.live_server_url}/booth/'+str(self.v.id))
+
+        self.driver.find_element(By.ID,'username').send_keys("admin")
+        self.driver.find_element(By.ID,'password').send_keys("qwerty", Keys.ENTER) 
+        
+        self.driver.find_element(By.CSS_SELECTOR, ".btn").click()
+        import time
+        time.sleep(4)
+        
+        self.assertTrue(len(self.driver.find_elements(By.CLASS_NAME, "custom-control-input"))==5)
+ 
+        time.sleep(4)
+        
+    def test_voting_stop(self):
+        self.driver.get(f'{self.live_server_url}/admin/')
+        self.driver.find_element(By.ID,'id_username').send_keys("admin")
+        self.driver.find_element(By.ID,'id_password').send_keys("qwerty",Keys.ENTER) 
+        print(self.driver.current_url)
+        #In case of a correct loging, a element with id 'user-tools' is shown in the upper right part
+        self.assertTrue(len(self.driver.find_elements(By.ID,'user-tools'))==1)
+        self.driver.find_element(By.LINK_TEXT, "Votings").click()
+        self.driver.find_element(By.NAME, "_selected_action").click()
+        dropdown = self.driver.find_element(By.NAME, "action")
+        dropdown.find_element(By.XPATH, "//option[. = 'Start']").click()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).click_and_hold().perform()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).perform()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).release().perform()
+        self.driver.find_element(By.NAME, "index").click()
+    
+        self.driver.find_element(By.NAME, "_selected_action").click()
+        dropdown = self.driver.find_element(By.NAME, "action")
+        dropdown.find_element(By.XPATH, "//option[. = 'Stop']").click()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).click_and_hold().perform()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).perform()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).release().perform()
+        self.driver.find_element(By.NAME, "index").click()
+
+    def test_voting_tally(self):
+        self.driver.get(f'{self.live_server_url}/admin/')
+        self.driver.find_element(By.ID,'id_username').send_keys("admin")
+        self.driver.find_element(By.ID,'id_password').send_keys("qwerty",Keys.ENTER) 
+        print(self.driver.current_url)
+        #In case of a correct loging, a element with id 'user-tools' is shown in the upper right part
+        self.assertTrue(len(self.driver.find_elements(By.ID,'user-tools'))==1)
+        self.driver.find_element(By.LINK_TEXT, "Votings").click()
+        self.driver.find_element(By.NAME, "_selected_action").click()
+        dropdown = self.driver.find_element(By.NAME, "action")
+        dropdown.find_element(By.XPATH, "//option[. = 'Start']").click()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).click_and_hold().perform()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).perform()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).release().perform()
+        self.driver.find_element(By.NAME, "index").click()
+    
+        self.driver.find_element(By.NAME, "_selected_action").click()
+        dropdown = self.driver.find_element(By.NAME, "action")
+        dropdown.find_element(By.XPATH, "//option[. = 'Stop']").click()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).click_and_hold().perform()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).perform()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).release().perform()
+        self.driver.find_element(By.NAME, "index").click()
+        self.driver.find_element(By.NAME, "_selected_action").click()
+        dropdown = self.driver.find_element(By.NAME, "action")
+        dropdown.find_element(By.XPATH, "//option[. = 'Tally']").click()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).click_and_hold().perform()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).perform()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).release().perform()
+        self.driver.find_element(By.NAME, "index").click()
