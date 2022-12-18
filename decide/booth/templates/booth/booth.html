@@ -59,7 +59,7 @@
                             <b-form-group v-for="opt in q.options" :key="opt.number">
                                 <b-form-radio v-model="selected"
                                 :id="'q' + opt.number"
-                                name="question"
+                                :name="'question'+opt.number"
                                 :value="opt.number">
                                     [[ opt.option ]]
                                 </b-form-radio>       
