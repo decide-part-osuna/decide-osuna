@@ -24,6 +24,10 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+
 
 class VotingTestCase(BaseTestCase):
 
@@ -215,6 +219,59 @@ class VotingTestCase(BaseTestCase):
         response = self.client.put('/voting/{}/'.format(voting.pk), data, format='json')
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json(), 'Voting already tallied')
+
+
+class VotingYesNoModelTestCase(BaseTestCase):
+    def setUp(self):
+        
+        q = Question(desc='test yes or no')
+        q.questionYesNO = True
+        q.save()
+        o = QuestionOption(question=q)
+        o.save()
+
+
+    def tearDown(self):
+        super().tearDown()
+        self.q = None
+
+    def testExist(self):
+        q=Question.objects.get(desc='test yes or no')
+        self.assertEquals(str(q), 'test yes or no')
+        
+    def testShowOptions(self):
+        q=Question.objects.get(desc='test yes or no')
+        self.assertEquals(q.options.all()[0].option, 'Sí')
+        self.assertEquals(q.options.all()[1].option, 'No')
+        
+        
+class VotingListTestCase(BaseTestCase):
+    
+    def setUp(self):
+        super().setUp()
+                       
+    def tearDown(self):
+        super().tearDown()
+            
+    def test_list_votings(self):
+        self.client.get('/voting/votings')
+        self.assertTemplateUsed('listVoting.html')
+        
+    def test_list_votings_by_desc(self):
+        self.client.get('/voting/votingsByDesc')
+        self.assertTemplateUsed('votingsByDesc.html')
+        
+    def test_list_votings_by_name(self):
+        self.client.get('/voting/votingsByName')
+        self.assertTemplateUsed('votingsByName.html')
+        
+    def test_list_votings_by_start_date(self):
+        self.client.get('/voting/votingsByStartDate')
+        self.assertTemplateUsed('votingsByStartDate.html')
+        
+    def test_list_votings_by_start_date(self):
+        self.client.get('/voting/votingsByEndDate')
+        self.assertTemplateUsed('votingsByEndDate.html')
 
     def testCreateMultiquestionVoting(self):
         q1 = Question(desc='question1')
@@ -412,4 +469,3 @@ class VotingSeleniumTestCase(StaticLiveServerTestCase):
         actions = ActionChains(self.driver)
         actions.move_to_element(element).release().perform()
         self.driver.find_element(By.NAME, "index").click()
-        
