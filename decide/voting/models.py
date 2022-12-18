@@ -23,7 +23,7 @@ class Question(models.Model):
         return self.desc
     
 @receiver(post_save, sender=Question)
-def questionYesNO(sender, instance, **kwargs):
+def questionYesNO(instance, **kwargs):
     options = instance.options.all()
     if instance.questionYesNO==True and options.count()==0:
         op1 = QuestionOption(question=instance, number=1, option="Sí")
