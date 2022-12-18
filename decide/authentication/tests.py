@@ -144,6 +144,10 @@ class AuthTestCase(APITestCase):
     def negative_test_loginUser_wrong_password(self):
         response = self.client.post('/authentication/loginUser/', {'username': 'UserTestLogin', 'password':'aaaaaaaaa'})
         self.assertEqual(response.status_code, 400)
+
+    def negative_test_loginUser_wrong_user(self):
+        response = self.client.post('/authentication/loginUser/', {'username': 'EsteUsuarioNoExiste9645', 'password':'TestUsuario1'})
+        self.assertEqual(response.status_code, 400)
     
 class RegisterTestCase(StaticLiveServerTestCase):
     def setUp(self):
