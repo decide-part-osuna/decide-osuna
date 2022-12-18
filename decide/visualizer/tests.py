@@ -68,7 +68,7 @@ class MailSeleniumTestCase(StaticLiveServerTestCase):
         self.v.save()
 
         options = webdriver.ChromeOptions()
-        # options.headless = True
+        options.headless = True
         self.driver = webdriver.Chrome(options=options)
 
         super().setUp()            
