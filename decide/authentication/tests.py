@@ -217,7 +217,7 @@ class RegisterTestCase(StaticLiveServerTestCase):
         self.driver.find_element(By.NAME,'name').send_keys('Usertest Negative5')
         self.driver.find_element(By.NAME,'surname').send_keys('RegisterNegative Test5')
         self.driver.find_element(By.NAME,'email').send_keys('exampleNegativeTest25@gmail.com')
-        self.driver.find_element(By.NAME,'password1').send_keys('testN5', Keys.ENTER)
+        self.driver.find_element(By.NAME,'password').send_keys('testN5', Keys.ENTER)
         self.assertTrue(self.driver.title == 'Register')
 
 class LoginUserTestCase(StaticLiveServerTestCase):
@@ -261,14 +261,15 @@ class LoginUserTestCase(StaticLiveServerTestCase):
         self.driver.find_element(By.NAME,'username').send_keys('UserTest1', Keys.ENTER)
         self.assertTrue(self.driver.title == 'Login')
 
-    def negative_test_login_wrong_password(self)
+    def negative_test_login_wrong_password(self):
         self.driver.get(f'{self.live_server_url}/authentication/loginUser/')
         self.driver.find_element(By.NAME,'username').send_keys('UserTest1')
         self.driver.find_element(By.NAME,'password').send_keys('aaaaaaaaaaaa', Keys.ENTER)
         self.assertTrue(self.driver.title == 'Login')
 
-    def negative_test_login_unexistant_username(self)
+    def negative_test_login_unexistant_username(self):
         self.driver.get(f'{self.live_server_url}/authentication/loginUser/')
         self.driver.find_element(By.NAME,'username').send_keys('UsuarioQueNoExiste6519')
         self.driver.find_element(By.NAME,'password').send_keys('TestUsuario1', Keys.ENTER)
         self.assertTrue(self.driver.title == 'Login')
+
