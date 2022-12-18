@@ -30,6 +30,10 @@ class AuthTestCase(APITestCase):
         u2.is_superuser = True
         u2.save()
 
+        u3 = User(username='UserTestLogin')
+        u3.set_password('TestUsuario1')
+        u3.save()
+
     def tearDown(self):
         self.client = None
 
@@ -122,6 +126,11 @@ class AuthTestCase(APITestCase):
     def negative_test_register_no_second_password(self):
         response = self.client.post('/authentication/register/', {'userName':'UserNegativeTest5','name': 'Usertest Negative5', 'surname': 'RegisterNegative Test5', 'email':'exampleNegativeTest5@gmail.com', 'password': 'test5'})
         self.assertEqual(response.status_code, 400)
+
+    #Positive loginUser tests
+    def test_loginUser(self):
+        response = self.client.post('/authentication/loginUser/', {'username': 'UserTestLogin', 'password':'TestUsuario1'})
+        self.assertEqual(response.status_code, 200)
     
 class RegisterTestCase(StaticLiveServerTestCase):
     def setUp(self):
