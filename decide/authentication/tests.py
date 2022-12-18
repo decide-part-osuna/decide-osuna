@@ -56,7 +56,7 @@ class AuthTestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
 
         user = response.json()
-        self.assertEqual(user['id'], 3)
+        self.assertEqual(user['id'], 5)
         self.assertEqual(user['username'], 'voter1')
 
     def test_getuser_invented_token(self):
@@ -134,7 +134,11 @@ class AuthTestCase(APITestCase):
     
     #Negative registration tests
     def negative_test_register_no_username(self):
-        response = self.client.post('/authentication/register/', {'name': 'Usertest Negative', 'surname': 'RegisterNegative Test', 'email':'exampleTest3@gmail.com', 'password':'test3', 'password2': 'test3'})
+        response = self.client.post('/authentication/register/', {'name': 'Usertest Negative', 'surname': 'RegisterNegative Test', 'email':'exampleNegativeTest@gmail.com', 'password':'test3', 'password2': 'test3'})
+        self.assertEqual(response.status_code, 400)
+
+    def negative_test_register_no_password(self):
+        response = self.client.post('/authentication/register/', {'userName':'UserTest3','name': 'Usertest Negative2', 'surname': 'RegisterNegative Test2', 'email':'exampleNegativeTest2@gmail.com', 'password2': 'test3'})
         self.assertEqual(response.status_code, 400)
 
 class RegisterTestCase(StaticLiveServerTestCase):
