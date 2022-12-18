@@ -15,6 +15,10 @@ from mixnet.mixcrypt import MixCrypt
 from mixnet.models import Auth
 from voting.models import Voting, Question, QuestionOption
 
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+
 
 class VotingTestCase(BaseTestCase):
 
@@ -255,3 +259,32 @@ class VotingModelTestCase(BaseTestCase):
         q=Question.objects.get(desc='test yes or no')
         self.assertEquals(q.options.all()[0].option, 'Sí')
         self.assertEquals(q.options.all()[1].option, 'No')
+        
+        
+class VotingListTestCase(BaseTestCase):
+    
+    def setUp(self):
+        super().setUp()
+                       
+    def tearDown(self):
+        super().tearDown()
+            
+    def test_list_votings(self):
+        self.client.get('/voting/votings')
+        self.assertTemplateUsed('listVoting.html')
+        
+    def test_list_votings_by_desc(self):
+        self.client.get('/voting/votingsByDesc')
+        self.assertTemplateUsed('votingsByDesc.html')
+        
+    def test_list_votings_by_name(self):
+        self.client.get('/voting/votingsByName')
+        self.assertTemplateUsed('votingsByName.html')
+        
+    def test_list_votings_by_start_date(self):
+        self.client.get('/voting/votingsByStartDate')
+        self.assertTemplateUsed('votingsByStartDate.html')
+        
+    def test_list_votings_by_start_date(self):
+        self.client.get('/voting/votingsByEndDate')
+        self.assertTemplateUsed('votingsByEndDate.html')
