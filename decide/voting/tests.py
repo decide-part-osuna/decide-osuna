@@ -340,7 +340,7 @@ class VotingSeleniumTestCase(StaticLiveServerTestCase):
         self.c.save()
 
         options = webdriver.ChromeOptions()
-        # options.headless = True
+        options.headless = True
         self.driver = webdriver.Chrome(options=options)
         
 
