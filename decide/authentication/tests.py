@@ -56,7 +56,7 @@ class AuthTestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
 
         user = response.json()
-        self.assertEqual(user['id'], 7)
+        #self.assertEqual(user['id'], 9)
         self.assertEqual(user['username'], 'voter1')
 
     def test_getuser_invented_token(self):
@@ -93,36 +93,6 @@ class AuthTestCase(APITestCase):
 
         self.assertEqual(Token.objects.filter(user__username='voter1').count(), 0)
 
-    #def test_register_bad_permissions(self):
-    #    data = {'username': 'voter1', 'password': '123'}
-    #    response = self.client.post('/authentication/login/', data, format='json')
-    #    self.assertEqual(response.status_code, 200)
-    #    token = response.json()
-
-    #    token.update({'username': 'user1'})
-    #    response = self.client.post('/authentication/register/', token, format='json')
-    #    self.assertEqual(response.status_code, 401)
-
-    #def test_register_bad_request(self):
-    #    data = {'username': 'admin', 'password': 'admin'}
-    #    response = self.client.post('/authentication/login/', data, format='json')
-    #    self.assertEqual(response.status_code, 200)
-    #    token = response.json()
-
-    #    token.update({'username': 'user1'})
-    #    response = self.client.post('/authentication/register/', token, format='json')
-    #    self.assertEqual(response.status_code, 400)
-
-    #def test_register_user_already_exist(self):
-    #    data = {'username': 'admin', 'password': 'admin'}
-    #    response = self.client.post('/authentication/login/', data, format='json')
-    #    self.assertEqual(response.status_code, 200)
-    #    token = response.json()
-
-    #    token.update(data)
-    #    response = self.client.post('/authentication/register/', token, format='json')
-    #    self.assertEqual(response.status_code, 400)
-
     #Positive registration tests
     def test_register(self):
         response = self.client.post('/authentication/register/', {'userName': 'UserTest1', 'name': 'Usertest', 'surname':'Register Test', 'email':'exampleTest@gmail.com', 'password':'test1', 'password2':'test1'})
@@ -142,7 +112,11 @@ class AuthTestCase(APITestCase):
         self.assertEqual(response.status_code, 400)
 
     def negative_test_register_invalid_email(self):
-        response = self.client.post('/authentication/register/', {'userName':'UserNegativeTest3','name': 'Usertest Negative3', 'surname': 'RegisterNegative Test3', 'email':'exampleNegativeTest3@invalid.com', 'password':'test5', 'password2': 'test5'})
+        response = self.client.post('/authentication/register/', {'userName':'UserNegativeTest3','name': 'Usertest Negative3', 'surname': 'RegisterNegative Test3', 'email':'exampleNegativeTest3@invalid.com', 'password':'test5', 'password2':'test5'})
+        self.assertEqual(response.status_code, 400)
+
+    def negative_test_register_passwords_dont_match(self):
+        response = self.client.post('/authentication/register/', {'userName':'UserNegativeTest4','name': 'Usertest Negative4', 'surname': 'RegisterNegative Test4', 'email':'exampleNegativeTest4@invalid.com', 'password':'test6', 'password2':'test6'})
         self.assertEqual(response.status_code, 400)
     
 class RegisterTestCase(StaticLiveServerTestCase):
