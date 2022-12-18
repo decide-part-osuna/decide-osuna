@@ -117,7 +117,7 @@ class LoginView(APIView):
         try:
             userTest = Metodos.getUsuarioPorNombre(username)
             correctPassword = check_password(password, userTest.password)
-            if correctPassword!=True or userTest is None:
+            if correctPassword!=True:
                 if correctPassword!=True:
                     errorMessage = "Wrong password"
                     errorList.append(errorMessage)

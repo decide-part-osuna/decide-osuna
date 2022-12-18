@@ -255,3 +255,4 @@ class LoginUserTestCase(StaticLiveServerTestCase):
         self.driver.find_element(By.NAME,'username').send_keys('UsuarioQueNoExiste6519')
         self.driver.find_element(By.NAME,'password').send_keys('TestUsuario1', Keys.ENTER)
         self.assertTrue(self.driver.title == 'Login')
+
