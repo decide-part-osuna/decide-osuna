@@ -118,6 +118,10 @@ class AuthTestCase(APITestCase):
     def negative_test_register_passwords_dont_match(self):
         response = self.client.post('/authentication/register/', {'userName':'UserNegativeTest4','name': 'Usertest Negative4', 'surname': 'RegisterNegative Test4', 'email':'exampleNegativeTest4@invalid.com', 'password':'test6', 'password2':'test6'})
         self.assertEqual(response.status_code, 400)
+
+    def negative_test_register_no_second_password(self):
+        response = self.client.post('/authentication/register/', {'userName':'UserNegativeTest5','name': 'Usertest Negative5', 'surname': 'RegisterNegative Test5', 'email':'exampleNegativeTest5@gmail.com', 'password': 'test5'})
+        self.assertEqual(response.status_code, 400)
     
 class RegisterTestCase(StaticLiveServerTestCase):
     def setUp(self):
