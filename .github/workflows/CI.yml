@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, decide-part-osuna-1, decide-part-osuna-2]
+    branches: [master, decide-part-osuna-1, decide-part-osuna-2]
   pull_request:
-    branches: [main, decide-part-osuna-1, decide-part-osuna-2]
+    branches: [master, decide-part-osuna-1, decide-part-osuna-2]
 
 jobs:
   build:
